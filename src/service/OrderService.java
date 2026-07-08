@@ -35,8 +35,21 @@ public class OrderService {
         return orderDAO.getOrderById(orderId);
     }
 
+    public java.util.List<model.RestaurantTable> viewAllTables() {
+        return orderDAO.getAllTables();
+    }
+
+    public boolean editTable(int tableId, int capacity, String status) {
+        if (tableId <= 0 || capacity <= 0 || status == null) return false;
+        return orderDAO.updateTable(tableId, capacity, status);
+    }
+
     public Queue<Order> getKitchenQueue() {
         return orderDAO.getPendingOrders();
+    }
+
+    public void addTable(int tableNo, int capacity) {
+        orderDAO.addTable(tableNo, capacity);
     }
 
     public boolean updateOrderStatus(int orderId, String status) {

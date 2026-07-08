@@ -23,19 +23,20 @@ public class BillingService implements Payment {
         return amount > 0 && method != null && !method.trim().isEmpty();
     }
 
-    public Bill generateBill(int orderId, double totalAmount, double discount, String paymentMethod) {
+    public Bill generateBill(int orderId, double totalAmount, double discountPercentage, String paymentMethod) {
         if (orderId <= 0 || !processPayment(totalAmount, paymentMethod)) {
             return null;
         }
 
         double tax = totalAmount * TAX_RATE;
-        double finalAmount = (totalAmount + tax) - discount;
+        double calculatedDiscountAmount = (totalAmount * discountPercentage) / 100.0;
+        double finalAmount = (totalAmount + tax) - calculatedDiscountAmount;
 
         Bill newBill = new Bill();
         newBill.setOrderId(orderId);
         newBill.setTotalAmount(totalAmount);
         newBill.setTax(tax);
-        newBill.setDiscount(discount);
+        newBill.setDiscount(calculatedDiscountAmount); // Store the actual subtracted amount
         newBill.setFinalAmount(finalAmount);
         newBill.setPaymentMethod(paymentMethod);
 

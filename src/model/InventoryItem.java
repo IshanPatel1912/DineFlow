@@ -5,15 +5,17 @@ public class InventoryItem {
     private String ingredientName;
     private double stockQuantity;
     private String unit;
+    private double purchasePrice; // NEW
     private double minimumThreshold;
 
     public InventoryItem() {}
 
-    public InventoryItem(int ingredientId, String ingredientName, double stockQuantity, String unit, double minimumThreshold) {
+    public InventoryItem(int ingredientId, String ingredientName, double stockQuantity, String unit, double purchasePrice, double minimumThreshold) {
         this.ingredientId = ingredientId;
         this.ingredientName = ingredientName;
         this.stockQuantity = stockQuantity;
         this.unit = unit;
+        this.purchasePrice = purchasePrice;
         this.minimumThreshold = minimumThreshold;
     }
 
@@ -28,6 +30,9 @@ public class InventoryItem {
 
     public String getUnit() { return unit; }
     public void setUnit(String unit) { this.unit = unit; }
+
+    public double getPurchasePrice() { return purchasePrice; }
+    public void setPurchasePrice(double purchasePrice) { this.purchasePrice = purchasePrice; }
 
     public double getMinimumThreshold() { return minimumThreshold; }
     public void setMinimumThreshold(double minimumThreshold) { this.minimumThreshold = minimumThreshold; }

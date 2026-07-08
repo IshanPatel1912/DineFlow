@@ -28,6 +28,13 @@ public class DineFlowApp {
 
     public static void main(String[] args) {
         System.out.println("Initializing DineFlow System...");
+        
+        // CLEAN BOOTSTRAPPER CALL: Passes control to the SetupWizard if no admin exists
+        if (!authService.adminExists()) {
+            SetupWizard wizard = new SetupWizard(authService, inventoryService);
+            wizard.run();
+        }
+
         while (true) {
             if (currentUser == null) {
                 showAuthMenu();
@@ -52,22 +59,16 @@ public class DineFlowApp {
     private static int readInt(String prompt) {
         while (true) {
             System.out.print(prompt);
-            try {
-                return Integer.parseInt(scanner.nextLine().trim());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
-            }
+            try { return Integer.parseInt(scanner.nextLine().trim()); } 
+            catch (NumberFormatException e) { System.out.println("Invalid input. Please enter a number."); }
         }
     }
 
     private static double readDouble(String prompt) {
         while (true) {
             System.out.print(prompt);
-            try {
-                return Double.parseDouble(scanner.nextLine().trim());
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid decimal number.");
-            }
+            try { return Double.parseDouble(scanner.nextLine().trim()); } 
+            catch (NumberFormatException e) { System.out.println("Invalid input. Please enter a decimal."); }
         }
     }
 
@@ -79,12 +80,11 @@ public class DineFlowApp {
         System.out.println("---------------------------------------------");
         
         int choice = readInt("Select an option: ");
-
         switch (choice) {
             case 1: handleLogin(); break;
             case 2: handleSignup(); break;
             case 3: System.out.println("Shutting down DineFlow. Goodbye!"); System.exit(0); break;
-            default: System.out.println("Invalid choice. Please try again."); pause();
+            default: System.out.println("Invalid choice."); pause();
         }
     }
 
@@ -96,11 +96,8 @@ public class DineFlowApp {
 
         currentUser = authService.login(username, password);
 
-        if (currentUser != null) {
-            System.out.println("\n>> Login Successful! Welcome, " + currentUser.getUsername() + ".");
-        } else {
-            System.out.println("\n>> Error: Invalid credentials.");
-        }
+        if (currentUser != null) System.out.println("\n>> Login Successful! Welcome, " + currentUser.getUsername() + ".");
+        else System.out.println("\n>> Error: Invalid credentials.");
         pause();
     }
 
@@ -117,13 +114,9 @@ public class DineFlowApp {
         boolean success = authService.signup(username, password, "CUSTOMER");
         if (success) {
             User newUser = authService.login(username, password);
-            if (newUser != null) {
-                customerService.registerCustomer(newUser.getUserId(), name, phone, "");
-            }
+            if (newUser != null) customerService.registerCustomer(newUser.getUserId(), name, phone, "");
             System.out.println("\n>> Signup successful! Profile created. You can now log in.");
-        } else {
-            System.out.println("\n>> Error: Signup failed. Username might be taken.");
-        }
+        } else System.out.println("\n>> Error: Signup failed. Username might be taken.");
         pause();
     }
 
@@ -134,7 +127,7 @@ public class DineFlowApp {
             case "RECEPTIONIST": showReceptionistMenu(); break;
             case "KITCHEN": showKitchenMenu(); break;
             case "CUSTOMER": showCustomerMenu(); break;
-            default: System.out.println("Role not recognized. Logging out."); currentUser = null;
+            default: System.out.println("Role not recognized."); currentUser = null;
         }
     }
 
@@ -143,7 +136,8 @@ public class DineFlowApp {
         System.out.println("1. View Financial Analytics");
         System.out.println("2. View Customer Feedback");
         System.out.println("3. Hire New Employee");
-        System.out.println("4. Logout");
+        System.out.println("4. Pay Employee Salaries");
+        System.out.println("5. Logout");
         System.out.println("---------------------------------------------");
 
         int choice = readInt("Select an option: ");
@@ -151,7 +145,8 @@ public class DineFlowApp {
             case 1: displayReports(); pause(); break;
             case 2: displayFeedback(); pause(); break;
             case 3: hireEmployee(); pause(); break;
-            case 4: currentUser = null; break;
+            case 4: paySalaries(); break;
+            case 5: currentUser = null; break;
             default: System.out.println("Invalid option."); pause();
         }
     }
@@ -160,14 +155,18 @@ public class DineFlowApp {
         printHeader("MANAGER DASHBOARD");
         System.out.println("1. Manage Inventory Stock");
         System.out.println("2. Manage Digital Menu");
-        System.out.println("3. Logout");
+        System.out.println("3. Manage Tables");
+        System.out.println("4. Log Business Expense");
+        System.out.println("5. Logout");
         System.out.println("---------------------------------------------");
 
         int choice = readInt("Select an option: ");
         switch (choice) {
             case 1: manageInventory(); break;
             case 2: manageMenu(); break;
-            case 3: currentUser = null; break;
+            case 3: manageTables(); break;
+            case 4: logExpense(); break;
+            case 5: currentUser = null; break;
             default: System.out.println("Invalid option."); pause();
         }
     }
@@ -224,10 +223,6 @@ public class DineFlowApp {
         }
     }
 
-    // ==========================================
-    // MODULE: MENU MANAGEMENT
-    // ==========================================
-    
     private static void manageMenu() {
         while(true) {
             printHeader("MENU MANAGEMENT");
@@ -237,10 +232,8 @@ public class DineFlowApp {
             System.out.println("4. Go Back");
             int choice = readInt("Select: ");
             
-            if (choice == 1) {
-                displayMenu();
-                pause();
-            } else if (choice == 2) {
+            if (choice == 1) { displayMenu(); pause(); } 
+            else if (choice == 2) {
                 System.out.print("Item Name: ");
                 String name = scanner.nextLine().trim();
                 System.out.print("Description: ");
@@ -281,10 +274,6 @@ public class DineFlowApp {
         }
     }
 
-    // ==========================================
-    // MODULE: CUSTOMER MANAGEMENT
-    // ==========================================
-
     private static void manageCustomers() {
         while(true) {
             printHeader("CUSTOMER MANAGEMENT");
@@ -293,10 +282,8 @@ public class DineFlowApp {
             System.out.println("3. Go Back");
             int choice = readInt("Select: ");
             
-            if (choice == 1) {
-                displayCustomers();
-                pause();
-            } else if (choice == 2) {
+            if (choice == 1) { displayCustomers(); pause(); } 
+            else if (choice == 2) {
                 displayCustomers();
                 int id = readInt("Enter Customer ID to edit: ");
                 System.out.print("New Full Name: ");
@@ -323,10 +310,6 @@ public class DineFlowApp {
             }
         }
     }
-
-    // ==========================================
-    // MODULE: KITCHEN & ORDERS
-    // ==========================================
 
     private static void displayPendingOrders() {
         printHeader("KITCHEN QUEUE");
@@ -395,33 +378,47 @@ public class DineFlowApp {
         } else System.out.println("Order cancelled (Cart is empty).");
     }
 
-    // ==========================================
-    // MODULE: INVENTORY
-    // ==========================================
-
     private static void manageInventory() {
         while(true) {
             printHeader("INVENTORY MANAGEMENT");
             System.out.println("1. View Inventory Status");
-            System.out.println("2. Update Stock Quantity");
-            System.out.println("3. Go Back");
+            System.out.println("2. Add New Inventory Item");
+            System.out.println("3. Override Stock Quantity (Total Reset)");
+            System.out.println("4. Mark Stock as Used (Manual Deduction)");
+            System.out.println("5. Go Back");
             int choice = readInt("Select: ");
             
-            if (choice == 1) {
-                displayInventory();
-                pause();
+            if (choice == 1) { 
+                displayInventory(); 
+                pause(); 
             } else if (choice == 2) {
-                displayInventory();
-                System.out.println();
-                int id = readInt("Enter Ingredient ID to update (or 0 to cancel): ");
-                if (id == 0) continue;
+                System.out.print("\nNew Ingredient Name: ");
+                String name = scanner.nextLine().trim();
+                double qty = readDouble("Starting Quantity: ");
+                System.out.print("Unit (e.g., kg): ");
+                String unit = scanner.nextLine().trim();
+                double price = readDouble("Purchase Price per unit: ₹");
+                double threshold = readDouble("Minimum Alert Threshold: ");
                 
-                double newQty = readDouble("Enter new total stock quantity: ");
-                if (inventoryService.updateIngredientStock(id, newQty)) {
-                    System.out.println(">> Stock successfully updated.");
-                } else {
-                    System.out.println(">> Error: Failed to update stock.");
-                }
+                if (inventoryService.addNewIngredient(name, qty, unit, price, threshold)) {
+                    System.out.println(">> New item added to inventory.");
+                } else System.out.println(">> Error adding item.");
+                pause();
+            } else if (choice == 3) {
+                displayInventory();
+                int id = readInt("Enter Ingredient ID to override (or 0 to cancel): ");
+                if (id == 0) continue;
+                double newQty = readDouble("Enter new TOTAL stock quantity: ");
+                if (inventoryService.updateIngredientStock(id, newQty)) System.out.println(">> Stock successfully updated.");
+                else System.out.println(">> Error: Failed to update stock.");
+                pause();
+            } else if (choice == 4) {
+                displayInventory();
+                int id = readInt("Enter Ingredient ID to deduct from (or 0 to cancel): ");
+                if (id == 0) continue;
+                double deductQty = readDouble("Enter amount used/spoiled: ");
+                if (inventoryService.manuallyDeductStock(id, deductQty)) System.out.println(">> Stock successfully deducted.");
+                else System.out.println(">> Error: Not enough stock or invalid ID.");
                 pause();
             } else break;
         }
@@ -429,8 +426,11 @@ public class DineFlowApp {
 
     private static void displayInventory() {
         List<InventoryItem> items = inventoryService.viewFullInventory();
+        System.out.printf("%-5s | %-15s | %-10s | %-10s | %-10s\n", "ID", "Name", "Stock", "Unit", "Price/Unit");
+        System.out.println("---------------------------------------------------------------");
         for (InventoryItem item : items) {
-            System.out.printf("[%d] %-15s - %.2f %s\n", item.getIngredientId(), item.getIngredientName(), item.getStockQuantity(), item.getUnit());
+            System.out.printf("[%-3d] | %-15s | %-10.2f | %-10s | ₹%-10.2f\n", 
+                item.getIngredientId(), item.getIngredientName(), item.getStockQuantity(), item.getUnit(), item.getPurchasePrice());
         }
         System.out.println("\n--- LOW STOCK ALERTS ---");
         List<InventoryItem> alerts = inventoryService.checkLowStockAlerts();
@@ -441,10 +441,6 @@ public class DineFlowApp {
             }
         }
     }
-
-    // ==========================================
-    // REMAINDER OF MODULES (Billing, Reports, etc.)
-    // ==========================================
 
     private static void displayReports() {
         printHeader("FINANCIAL ANALYTICS");
@@ -484,12 +480,12 @@ public class DineFlowApp {
         }
 
         System.out.printf("Order Subtotal: ₹%.2f\n", order.getTotalAmount());
-        double discount = readDouble("Enter Discount Amount: ₹");
+        double discountPercent = readDouble("Enter Discount Percentage (%): ");
         
         System.out.print("Payment Method (CASH/CARD/UPI): ");
         String method = scanner.nextLine().toUpperCase().trim();
         
-        Bill bill = billingService.generateBill(orderId, order.getTotalAmount(), discount, method);
+        Bill bill = billingService.generateBill(orderId, order.getTotalAmount(), discountPercent, method);
         if (bill != null) {
             System.out.println("\n>> Success: Bill generated!");
             System.out.println(">> Invoice saved to /invoices/ folder.");
@@ -510,11 +506,8 @@ public class DineFlowApp {
         System.out.print("Enter your comments: ");
         String comments = scanner.nextLine().trim();
         
-        if (feedbackService.submitFeedback(c.getId(), rating, comments)) {
-            System.out.println(">> Thank you! Your feedback has been recorded.");
-        } else {
-            System.out.println(">> Error: Failed to submit feedback (Rating must be 1-5).");
-        }
+        if (feedbackService.submitFeedback(c.getId(), rating, comments)) System.out.println(">> Thank you! Your feedback has been recorded.");
+        else System.out.println(">> Error: Failed to submit feedback (Rating must be 1-5).");
     }
 
     private static void manageReservations() {
@@ -530,10 +523,9 @@ public class DineFlowApp {
                 case 1:
                     int customerId = readInt("Enter Customer ID: ");
                     int tableId = readInt("Enter Table ID to reserve: ");
-                    Timestamp time = new Timestamp(System.currentTimeMillis() + 86400000); // Books for tomorrow
-                    if(reservationService.bookTable(customerId, tableId, time)) {
-                        System.out.println("Table reserved successfully for tomorrow.");
-                    } else System.out.println("Failed to reserve table.");
+                    Timestamp time = new Timestamp(System.currentTimeMillis() + 86400000); 
+                    if(reservationService.bookTable(customerId, tableId, time)) System.out.println("Table reserved successfully for tomorrow.");
+                    else System.out.println("Failed to reserve table.");
                     pause();
                     break;
                 case 2:
@@ -578,5 +570,85 @@ public class DineFlowApp {
         } else {
             System.out.println("\n>> Error: Failed to hire employee. Username might exist or invalid role.");
         }
+    }
+
+    private static void manageTables() {
+        while(true) {
+            printHeader("TABLE MANAGEMENT");
+            System.out.println("1. View All Tables");
+            System.out.println("2. Add New Table");
+            System.out.println("3. Edit Existing Table");
+            System.out.println("4. Go Back");
+            int choice = readInt("Select: ");
+            
+            if (choice == 1) { 
+                displayTables(); 
+                pause(); 
+            } else if (choice == 2) {
+                int tableNo = readInt("Enter Table Number: ");
+                int cap = readInt("Enter Seating Capacity: ");
+                orderService.addTable(tableNo, cap);
+                System.out.println(">> Table " + tableNo + " added successfully!");
+                pause();
+            } else if (choice == 3) {
+                displayTables();
+                System.out.println();
+                int id = readInt("Enter Table ID to edit: ");
+                int cap = readInt("New Capacity: ");
+                System.out.print("New Status (AVAILABLE/OCCUPIED/RESERVED): ");
+                String status = scanner.nextLine().toUpperCase().trim();
+                
+                if (orderService.editTable(id, cap, status)) {
+                    System.out.println(">> Table updated successfully.");
+                } else {
+                    System.out.println(">> Error: Failed to update table. Check ID or Status spelling.");
+                }
+                pause();
+            } else break;
+        }
+    }
+
+    private static void displayTables() {
+        List<RestaurantTable> tables = orderService.viewAllTables();
+        if (tables.isEmpty()) {
+            System.out.println("No tables configured in the restaurant.");
+        } else {
+            System.out.printf("%-5s | %-10s | %-10s | %-15s\n", "ID", "Table No", "Capacity", "Status");
+            System.out.println("--------------------------------------------------");
+            for (RestaurantTable t : tables) {
+                System.out.printf("[%-3d] | %-10d | %-10d | %-15s\n", 
+                    t.getTableId(), t.getTableNumber(), t.getCapacity(), t.getStatus());
+            }
+        }
+    }
+
+    private static void logExpense() {
+        printHeader("LOG BUSINESS EXPENSE");
+        System.out.print("Expense Description (e.g., Rent, Electricity): ");
+        String desc = scanner.nextLine().trim();
+        double amt = readDouble("Amount: ₹");
+        reportService.logExpense(desc, amt);
+        System.out.println(">> Expense logged successfully to financial reports.");
+        pause();
+    }
+
+    private static void paySalaries() {
+        printHeader("PAY EMPLOYEE SALARIES");
+        List<Employee> employees = employeeService.viewAllEmployees();
+        if (employees.isEmpty()) {
+            System.out.println("No employees found.");
+            pause(); return;
+        }
+        for (Employee e : employees) {
+            System.out.printf("ID: %d | Name: %s | Role: %s | Salary: ₹%.2f\n", e.getId(), e.getName(), e.getRole(), e.getSalary());
+        }
+        System.out.println("---------------------------------------------");
+        int empId = readInt("Enter Employee ID to pay (or 0 to cancel): ");
+        if (empId == 0) return;
+        
+        double amount = readDouble("Enter Amount to Pay: ₹");
+        reportService.paySalary(empId, amount);
+        System.out.println(">> Salary of ₹" + amount + " paid successfully and logged to financial reports.");
+        pause();
     }
 }

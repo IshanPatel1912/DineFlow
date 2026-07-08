@@ -68,6 +68,45 @@ public class OrderDAO {
         }
     }
 
+    public java.util.List<model.RestaurantTable> getAllTables() {
+        java.util.List<model.RestaurantTable> tables = new java.util.ArrayList<>();
+        String sql = "SELECT * FROM restaurant_tables";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                tables.add(new model.RestaurantTable(
+                    rs.getInt("table_id"),
+                    rs.getInt("table_number"),
+                    rs.getInt("capacity"),
+                    rs.getString("status")
+                ));
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return tables;
+    }
+
+    public boolean updateTable(int tableId, int capacity, String status) {
+        String sql = "UPDATE restaurant_tables SET capacity = ?, status = ? WHERE table_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, capacity);
+            pstmt.setString(2, status);
+            pstmt.setInt(3, tableId);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) { e.printStackTrace(); return false; }
+    }
+
+    public void addTable(int tableNo, int capacity) {
+        String sql = "INSERT INTO restaurant_tables (table_number, capacity, status) VALUES (?, ?, 'AVAILABLE')";
+        try (java.sql.Connection conn = util.DatabaseConnection.getConnection();
+             java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, tableNo);
+            pstmt.setInt(2, capacity);
+            pstmt.executeUpdate();
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
     public Order getOrderById(int orderId) {
         String sql = "SELECT * FROM orders WHERE order_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();

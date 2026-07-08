@@ -4,26 +4,23 @@ import dao.ReportDAO;
 import model.FinancialReport;
 
 public class ReportService {
+    private ReportDAO reportDAO = new ReportDAO();
 
-    private ReportDAO reportDAO;
-
-    public ReportService() {
-        this.reportDAO = new ReportDAO();
-    }
-
-    public FinancialReport generateFinancialReport(String period) {
+   public FinancialReport generateFinancialReport(String period) {
         double revenue = reportDAO.getRevenue(period);
-        double monthlySalaries = reportDAO.getTotalMonthlySalaries();
+        double salaries = reportDAO.getActualSalariesPaid(period);
+        double expenses = reportDAO.getOtherExpenses(period);
+        double inventoryAsset = reportDAO.getTotalInventoryAssetValue(); 
 
-        double salaries = 0;
-        if (period.equals("DAILY")) salaries = monthlySalaries / 30.0;
-        else if (period.equals("WEEKLY")) salaries = monthlySalaries / 4.0;
-        else if (period.equals("YEARLY")) salaries = monthlySalaries * 12.0;
-
-        // Uses a standard restaurant Cost of Goods Sold (COGS) estimation of 30%
-        double inventoryCost = revenue * 0.30; 
-        double netProfit = revenue - salaries - inventoryCost;
-
-        return new FinancialReport(period, revenue, salaries, inventoryCost, netProfit);
+        return new FinancialReport(period, revenue, salaries, expenses, inventoryAsset);
     }
+
+    public void logExpense(String desc, double amount) {
+        reportDAO.logExpense(desc, amount);
+    }
+
+    public void paySalary(int empId, double amount) {
+        reportDAO.paySalary(empId, amount);
+    }
+    
 }

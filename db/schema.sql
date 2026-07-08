@@ -1,24 +1,12 @@
 CREATE DATABASE IF NOT EXISTS dineflow_db;
 USE dineflow_db;
 
-
 CREATE TABLE users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(100) NOT NULL, 
-    role ENUM('ADMIN', 'RECEPTIONIST', 'KITCHEN', 'CUSTOMER','MANAGER') NOT NULL
+    role ENUM('ADMIN', 'RECEPTIONIST', 'KITCHEN', 'CUSTOMER', 'MANAGER') NOT NULL
 );
-
-
-CREATE TABLE customers (
-    customer_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT UNIQUE, 
-    full_name VARCHAR(100) NOT NULL,
-    phone VARCHAR(15) UNIQUE,
-    email VARCHAR(100),
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
-);
-
 
 CREATE TABLE restaurant_tables (
     table_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -27,7 +15,6 @@ CREATE TABLE restaurant_tables (
     status ENUM('AVAILABLE', 'OCCUPIED', 'RESERVED') DEFAULT 'AVAILABLE',
     qr_code_hash VARCHAR(255) UNIQUE 
 );
-
 
 CREATE TABLE menu_items (
     item_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -38,15 +25,55 @@ CREATE TABLE menu_items (
     is_available BOOLEAN DEFAULT TRUE
 );
 
-
+-- UPDATED: Added purchase_price for financial reporting
 CREATE TABLE inventory (
     ingredient_id INT AUTO_INCREMENT PRIMARY KEY,
     ingredient_name VARCHAR(100) UNIQUE NOT NULL,
     stock_quantity DECIMAL(10, 2) NOT NULL,
     unit VARCHAR(20) NOT NULL, 
+    purchase_price DECIMAL(10, 2) DEFAULT 0.00,
     minimum_threshold DECIMAL(10, 2) NOT NULL 
 );
 
+-- NEW: Manager Expenses Table
+CREATE TABLE expenses (
+    expense_id INT AUTO_INCREMENT PRIMARY KEY,
+    description VARCHAR(255) NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    expense_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ==========================================
+-- 3. DEPENDENT TABLES (Contains Foreign Keys)
+-- ==========================================
+
+CREATE TABLE customers (
+    customer_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNIQUE, 
+    full_name VARCHAR(100) NOT NULL,
+    phone VARCHAR(15) UNIQUE,
+    email VARCHAR(100),
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE employees (
+    emp_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNIQUE,
+    name VARCHAR(100) NOT NULL,
+    phone VARCHAR(15),
+    role ENUM('RECEPTIONIST', 'CHEF', 'MANAGER') NOT NULL,
+    salary DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- NEW: Salary Payments Table linked to employees
+CREATE TABLE salary_payments (
+    payment_id INT AUTO_INCREMENT PRIMARY KEY,
+    emp_id INT NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (emp_id) REFERENCES employees(emp_id) ON DELETE CASCADE
+);
 
 CREATE TABLE orders (
     order_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -58,7 +85,6 @@ CREATE TABLE orders (
     FOREIGN KEY (table_id) REFERENCES restaurant_tables(table_id),
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
 );
-
 
 CREATE TABLE order_items (
     order_item_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -76,8 +102,8 @@ CREATE TABLE reservations (
     table_id INT NOT NULL,
     reservation_time DATETIME NOT NULL,
     status ENUM('PENDING', 'CONFIRMED', 'CANCELLED') DEFAULT 'PENDING',
-    FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
-    FOREIGN KEY (table_id) REFERENCES restaurant_tables(table_id)
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id) ON DELETE CASCADE,
+    FOREIGN KEY (table_id) REFERENCES restaurant_tables(table_id) ON DELETE CASCADE
 );
 
 CREATE TABLE bills (
@@ -99,14 +125,4 @@ CREATE TABLE feedback (
     comments TEXT,
     feedback_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id) ON DELETE CASCADE
-);
-
-CREATE TABLE employees (
-    emp_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT UNIQUE,
-    name VARCHAR(100) NOT NULL,
-    phone VARCHAR(15),
-    role ENUM('RECEPTIONIST', 'CHEF', 'MANAGER') NOT NULL,
-    salary DECIMAL(10, 2) NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );

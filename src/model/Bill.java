@@ -51,7 +51,7 @@ public class Bill implements Printable {
 
     @Override
     public void printDetails() {
-        System.out.printf("Bill #%d | Order #%d | Total: $%.2f | Method: %s\n", 
+        System.out.printf("Bill #%d | Order #%d | Total: ₹%.2f | Method: %s\n", 
             this.billId, this.orderId, this.finalAmount, this.paymentMethod);
     }
 }

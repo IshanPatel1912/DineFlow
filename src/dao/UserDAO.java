@@ -27,6 +27,17 @@ public class UserDAO {
         }
     }
 
+    public boolean adminExists() {
+        String sql = "SELECT COUNT(*) FROM users WHERE role = 'ADMIN'";
+        try (java.sql.Connection conn = util.DatabaseConnection.getConnection();
+             java.sql.PreparedStatement pstmt = conn.prepareStatement(sql);
+             java.sql.ResultSet rs = pstmt.executeQuery()) {
+            if (rs.next()) return rs.getInt(1) > 0;
+        } catch (Exception e) { e.printStackTrace(); }
+        return false;
+    }
+    
+
     public User authenticateUser(String username, String password) {
         String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
         try (Connection conn = DatabaseConnection.getConnection();

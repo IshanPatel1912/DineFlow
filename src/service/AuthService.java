@@ -10,6 +10,10 @@ public class AuthService {
     public AuthService() {
         this.userDAO = new UserDAO();
     }
+    
+    public boolean adminExists() {
+        return userDAO.adminExists();
+    }
 
     public boolean signup(String username, String password, String role) {
         if (username == null || username.trim().isEmpty() || password == null || password.trim().isEmpty()) {
