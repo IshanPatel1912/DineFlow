@@ -21,7 +21,6 @@ public abstract class Person {
 
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
-
-    // Abstract method: Every child class must define how they display their profile
+    
     public abstract void displayProfile(); 
 }

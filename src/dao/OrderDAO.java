@@ -165,7 +165,6 @@ public class OrderDAO {
         }
     }
 
-    // NEW METHOD: Fetches the items for the Chef
     public List<OrderItem> getOrderItemsByOrderId(int orderId) {
         List<OrderItem> items = new ArrayList<>();
         String sql = "SELECT * FROM order_items WHERE order_id = ?";

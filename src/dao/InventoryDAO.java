@@ -66,7 +66,6 @@ public class InventoryDAO {
         } catch (SQLException e) { e.printStackTrace(); return false; }
     }
 
-    // NEW: Allows Manager to mark items as used (deducts from current stock)
     public boolean deductStockById(int ingredientId, double amountUsed) {
         String sql = "UPDATE inventory SET stock_quantity = stock_quantity - ? WHERE ingredient_id = ? AND stock_quantity >= ?";
         try (Connection conn = DatabaseConnection.getConnection();

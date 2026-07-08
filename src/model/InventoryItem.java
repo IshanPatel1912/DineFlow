@@ -5,7 +5,7 @@ public class InventoryItem {
     private String ingredientName;
     private double stockQuantity;
     private String unit;
-    private double purchasePrice; // NEW
+    private double purchasePrice; 
     private double minimumThreshold;
 
     public InventoryItem() {}

@@ -18,7 +18,6 @@ public class Customer extends Person {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
-    // Fulfilling the abstract method requirement from Person
     @Override
     public void displayProfile() {
         System.out.println("Customer Profile: " + this.name + " | Phone: " + this.phone + " | Email: " + this.email);

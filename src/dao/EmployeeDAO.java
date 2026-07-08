@@ -19,7 +19,6 @@ public class EmployeeDAO {
             
             int userId = 0;
             try (PreparedStatement userStmt = conn.prepareStatement(insertUserSql, Statement.RETURN_GENERATED_KEYS)) {
-                // FIXED: Manager now maps to MANAGER in the users table
                 String dbRole = emp.getRole().equals("MANAGER") ? "MANAGER" : emp.getRole().equals("CHEF") ? "KITCHEN" : "RECEPTIONIST";
                 userStmt.setString(1, emp.getUsername());
                 userStmt.setString(2, password);

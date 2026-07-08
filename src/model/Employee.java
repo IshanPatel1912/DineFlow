@@ -6,7 +6,7 @@ public abstract class Employee extends Person {
     protected String username;
 
     public Employee(int id, String name, String phone, String role, double salary, String username) {
-        super(id, name, phone); // Calls the Person constructor
+        super(id, name, phone); 
         this.role = role;
         this.salary = salary;
         this.username = username;

@@ -29,7 +29,6 @@ public class DineFlowApp {
     public static void main(String[] args) {
         System.out.println("Initializing DineFlow System...");
         
-        // CLEAN BOOTSTRAPPER CALL: Passes control to the SetupWizard if no admin exists
         if (!authService.adminExists()) {
             SetupWizard wizard = new SetupWizard(authService, inventoryService);
             wizard.run();

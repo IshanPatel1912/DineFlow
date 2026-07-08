@@ -57,7 +57,6 @@ public class OrderService {
         return orderDAO.updateOrderStatus(orderId, status);
     }
 
-    // NEW METHOD
     public List<OrderItem> getItemsForOrder(int orderId) {
         return orderDAO.getOrderItemsByOrderId(orderId);
     }

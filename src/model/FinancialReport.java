@@ -14,7 +14,6 @@ public class FinancialReport {
         this.salariesPaid = sal;
         this.otherExpenses = exp;
         this.inventoryAssetValue = invAsset;
-        // Standard restaurant math: Net profit = Revenue - Operating Expenses
         this.netProfit = rev - sal - exp; 
     }
 

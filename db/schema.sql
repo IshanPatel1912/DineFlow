@@ -25,7 +25,6 @@ CREATE TABLE menu_items (
     is_available BOOLEAN DEFAULT TRUE
 );
 
--- UPDATED: Added purchase_price for financial reporting
 CREATE TABLE inventory (
     ingredient_id INT AUTO_INCREMENT PRIMARY KEY,
     ingredient_name VARCHAR(100) UNIQUE NOT NULL,
@@ -35,17 +34,12 @@ CREATE TABLE inventory (
     minimum_threshold DECIMAL(10, 2) NOT NULL 
 );
 
--- NEW: Manager Expenses Table
 CREATE TABLE expenses (
     expense_id INT AUTO_INCREMENT PRIMARY KEY,
     description VARCHAR(255) NOT NULL,
     amount DECIMAL(10, 2) NOT NULL,
     expense_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
--- ==========================================
--- 3. DEPENDENT TABLES (Contains Foreign Keys)
--- ==========================================
 
 CREATE TABLE customers (
     customer_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -66,7 +60,6 @@ CREATE TABLE employees (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
--- NEW: Salary Payments Table linked to employees
 CREATE TABLE salary_payments (
     payment_id INT AUTO_INCREMENT PRIMARY KEY,
     emp_id INT NOT NULL,
